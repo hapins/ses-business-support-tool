@@ -1,106 +1,98 @@
 # ses-business-support-tool
-This tool supports the SMB SES companies.  
-Main functions are bellow.
-- create purchase order contract data from spreadsheet automatically.
-- create pdf and store to the google drive.
-- link created data to the CloudSign.
-- link created data to the freee (in progress).
+このツールは中小規模のSES企業をサポートするツールです。  
+主な機能は以下です。
+- スプレッドシートで管理する受発注一覧から、契約書のPDFファイルを自動作成
+  - 注文書
+  - 注文請書
+  - 請求書 (実装予定)
+- 作成したPDFファイルをGoogleドライブに保存
+- [オプション] CloudSignと自動連携してドキュメントを作成
+- [オプション] freeeと自動連携して取引を作成 (実装予定)
 
-# Setup
-## Operating environment
-- Node.js >= v12.0
-
-## Procedure
-1. Please clone this repository.
-2. Install package  
+# 設定
+## 実行環境
+- Node.js v12.0 以上
+- npm v7.19 以上
+## 設定手順
+1. レポジトリのクローン
+2. パッケージインストール  
 ```
 npm ci
 ```
 
-# Usage
-## Setup env & upload script
-1. Create google apps script project.
-2. Copy project id from url.  
+# 利用方法
+## 環境設定 & スクリプトのアップロード
+1. google apps scriptプロジェクトを作成
+2. google apps scriptのプロジェクトIDを取得  
 ```
 https://script.google.com/home/projects/<ProjectId>
 ```
-3. Paste to .clasp.json > scriptId.
-4. Create a root google drive folder. (Contract data and files will be stored to this folder)
-5. Copy drive id from url.  
+3. .clasp.json > scriptId に取得したIDを記載
+4. Googleドライブに作業用のルートフォルダを作成 (作成した契約書のPDFはこのフォルダ配下に保存されていきます)
+5. GoogleドライブのIDをURLから取得.  
 ```
 https://drive.google.com/drive/folders/<FolderId>
 ```
-6. Paste to src/env.ts > googleDrive.rootFolderId.
-7. Setup src/env.ts, src/constants.ts according to your environment.
-4. Push code to google apps script project with this command.  
+6. src/env.ts > googleDrive.rootFolderId に取得したIDを記載
+7. src/env.ts, src/constants.ts ファイルを実行環境に応じて編集 (デフォルト値が入っているものはそのまま使えます)
+8. 以下コマンドで、Googleアカウントにログイン  
+```
+npx clasp login
+```
+9. 以下コマンドで、google apps projectにスクリプトをアップロード  
 ```
 npx clasp push
 ```
 
-## Publish script
-1. Deploy script.  
+## スクリプトの公開
+1. 以下手順でアップロードしたスクリプトを公開  
 ```
-Deploy > New Deployment > Select Type > Library > Add Description > Deploy
+デプロイ > 新しいデプロイ > 種類を選択 > ライブラリ > 説明を記述(任意) > デプロイ
 ```
-2. Copy library id from published url.  
+2. ライブラリのIDを発行したURLから取得  
 ```
 https://script.google.com/macros/library/d/<LibraryId>
 ```
 
-## Use from google spread sheet
-1. Create copy file from the template spread sheet.
-2. Open script editor form copied spread sheet.
-3. Import library.
-4. Input library info.  
+## スプレッドシートからの利用
+1. テンプレートスプレッドシートから自身の環境にコピーを作成
+2. スクリプトエディタを開く
+3. ライブラリを追加
+4. ライブラリ情報を入力  
 ```
-ScriptId : copied library id.
-Version  : published version (initial value=1)
-ID       : custom name for library. (ex. BusinessSupportTool)
-```
-5. Create button function and link the tool method.  
-```
-[sample]
-
-function createOrderContract() {
-  const ui = SpreadsheetApp.getUi();
-  const response = ui.alert('Start creating contract.', ui.ButtonSet.OK);
-  if (response === ui.Button.OK) {
-    try {
-        BusinessSupportTool.createLowerOrderContract()
-    } catch (error) {
-        console.error(error)
-        ui.alert('Error is occurred.。 Error: ' + error);
-        return
-    }
-    ui.alert('Completed.');
-  }
-}
-```
-6. Set this function to create purchase order button.
-
-## [Optional] Add cloud sign api client key
-1. Open library script project.
-2. Change to legacy editor.
-3. Open project setting.  
-```
-File  > Project properties > Script properties
-```
-4. Add property.  
-```
-name: cloudSignClientId
-value: api client key (Copy from CloudSign admin console)
-```
-5. Republish library.  
-```
-Deploy > Manage deployments > Edit > Version(New version) > Deploy
+ScriptId : スクリプトの公開で取得したID
+Version  : 公開したスクリプトの最新バージョン (初期値=1)
+ID       : BusinessSupportTools
 ```
 
-# Contribution
-- Fork it
-- Create your feature branch (git checkout -b new-feature)
-- Commit your changes (git commit -am 'Add some feature')
-- Push to the branch (git push origin new-feature)
-- Create new Pull Request at https://github.com/hapins/ses-business-support-tool
+## [オプション] CloudSignのAPIキーを追加
+1. CloudSignのAPIキーを取得 (CloudSignのドキュメント参照)
+2. ライブラリ側のスクリプトエディタを開く
+3. 旧エディタに変更
+4. 以下手順でプロジェクト設定を開く  
+```
+ファイル  > Project properties > Script properties
+```
+5. プロパティを追加  
+```
+name : cloudSignClientId
+value: 手順1で取得したAPIキー
+```
+6. 以下手順でライブラリの再公開  
+```
+デプロイ > デプロイの管理 > 編集 > バージョン(新しいバージョンを選択) > デプロイ
+```
+7. スプレッドシートに紐づくスクリプトのエディタを開く
+8. 以下手順でライブラリのバージョンを更新  
+```
+ライブラリ > BusinessSupportTools > バージョン (手順6で発行したバージョン) > 保存
+```
 
-# License
-This software is released under the MIT License, see LICENSE.txt.
+# お願い
+- 無料でツールを使っていただく代わりに以下にご協力ください
+  - 利用しにくい点や動作が不安定な点をご連絡ください  
+  - エンジニアの方は当レポジトリをforkして改善PRをお願いします
+- 連絡先: xxx@hapins.net
+
+# ライセンス
+MIT License.
